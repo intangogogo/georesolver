@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoResolver // Premium Coordinate Viewer</title>
+    
+    <!-- Meta tags for SEO & rich links -->
+    <meta name="description" content="An ultra-premium, interactive coordinate viewer featuring modern glassmorphism panels, customized mapping layers, and real-time geodesic calculations.">
+    <meta name="theme-color" content="#0a0a0c">
+    
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Fullscreen Map Canvas -->
+    <div id="map"></div>
+    
+    <!-- Premium UI Layer -->
+    <div class="ui-container">
+        <!-- Brand Header Overlay -->
+        <header class="brand-header animate-fade-in">
+            <div class="logo">
+                <i class="fa-solid fa-compass-drafting brand-icon"></i>
+                <div class="logo-text">
+                    <span class="brand-title">GEO<span class="gradient-text">RESOLVER</span></span>
+                    <span class="brand-subtitle">PREMIUM SPATIAL ANALYTICS</span>
+                </div>
+            </div>
+            <div class="pulse-indicator">
+                <span class="pulse-dot-mini"></span>
+                <span class="pulse-text">System Live</span>
+            </div>
+        </header>
+
+        <!-- Floating Glassmorphic Control Dashboard -->
+        <aside class="dashboard-panel animate-slide-in">
+            <!-- Location Spotlight Card -->
+            <section class="spotlight-card">
+                <div class="card-header">
+                    <span class="badge"><i class="fa-solid fa-crosshairs"></i> Target Pin</span>
+                    <h2 class="card-title">Active Coordinates</h2>
+                </div>
+                
+                <div class="coordinate-display">
+                    <div class="coord-row" id="lat-row">
+                        <div class="coord-label">Latitude</div>
+                        <div class="coord-value" id="disp-lat">-7.32511</div>
+                    </div>
+                    <div class="coord-row" id="lng-row">
+                        <div class="coord-label">Longitude</div>
+                        <div class="coord-value" id="disp-lng">108.22491</div>
+                    </div>
+                </div>
+
+                <!-- Location Info -->
+                <div class="location-details">
+                    <div class="detail-item">
+                        <i class="fa-solid fa-map-location-dot detail-icon"></i>
+                        <div class="detail-text">
+                            <span class="detail-label">Region</span>
+                            <span class="detail-value" id="loc-region">West Java, Indonesia</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fa-solid fa-mountain detail-icon"></i>
+                        <div class="detail-text">
+                            <span class="detail-label">Approx. Location</span>
+                            <span class="detail-value" id="loc-detail">Tasikmalaya / Garut Regency</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="action-grid">
+                    <button class="btn btn-primary" id="btn-recenter" title="Re-center map on active pin">
+                        <i class="fa-solid fa-location-crosshairs"></i> Recenter
+                    </button>
+                    <button class="btn btn-secondary" id="btn-copy" title="Copy coordinates to clipboard">
+                        <i class="fa-solid fa-clone"></i> Copy
+                    </button>
+                </div>
+            </section>
+
+            <!-- Map Theme Selector -->
+            <section class="panel-section">
+                <h3 class="section-title"><i class="fa-solid fa-layer-group"></i> Map Theme</h3>
+                <div class="theme-selector">
+                    <button class="theme-btn active" data-theme="dark" id="theme-dark">
+                        <i class="fa-solid fa-moon"></i>
+                        <span>Dark Canvas</span>
+                    </button>
+                    <button class="theme-btn" data-theme="light" id="theme-light">
+                        <i class="fa-solid fa-sun"></i>
+                        <span>Light Canvas</span>
+                    </button>
+                    <button class="theme-btn" data-theme="satellite" id="theme-satellite">
+                        <i class="fa-solid fa-earth-asia"></i>
+                        <span>Satellite</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Distance Utility -->
+            <section class="panel-section">
+                <h3 class="section-title"><i class="fa-solid fa-route"></i> Geodesic Distance</h3>
+                <div class="distance-card">
+                    <p class="distance-description">Calculate the geodesic distance from your current coordinates to the active pin.</p>
+                    <button class="btn btn-action w-full" id="btn-calc-distance">
+                        <i class="fa-solid fa-location-arrow"></i> Calculate from My Location
+                    </button>
+                    <div class="distance-result hidden" id="distance-result-panel">
+                        <div class="distance-divider"></div>
+                        <div class="distance-metric">
+                            <div class="metric-block">
+                                <span class="metric-value" id="dist-km">--</span>
+                                <span class="metric-unit">Kilometers</span>
+                            </div>
+                            <div class="metric-block">
+                                <span class="metric-value" id="dist-mi">--</span>
+                                <span class="metric-unit">Miles</span>
+                            </div>
+                        </div>
+                        <p class="metric-path" id="dist-coords-path">From: -- to active pin</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Custom Coordinates Form -->
+            <section class="panel-section">
+                <h3 class="section-title"><i class="fa-solid fa-map-pin"></i> Project Custom Pin</h3>
+                <form class="custom-pin-form" id="custom-pin-form">
+                    <div class="input-group">
+                        <label for="input-lat">Latitude</label>
+                        <input type="number" id="input-lat" step="any" min="-90" max="90" placeholder="-7.32511" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="input-lng">Longitude</label>
+                        <input type="number" id="input-lng" step="any" min="-180" max="180" placeholder="108.22491" required>
+                    </div>
+                    <button type="submit" class="btn btn-submit w-full" id="btn-submit-pin">
+                        <i class="fa-solid fa-rocket"></i> Plot Coordinates
+                    </button>
+                </form>
+            </section>
+        </aside>
+    </div>
+
+    <!-- Leaflet.js Script -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Custom Application Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
